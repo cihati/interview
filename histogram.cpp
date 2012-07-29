@@ -8,10 +8,11 @@
 #include <stack>
 using namespace std;
 
-typedef pair<int,int> pii;
-
 int findVolume(int arr[], int n) {
-  stack<pii> s;
+  // Keep a decrasing stack, when a new value bigger than stack top arrives,
+  // update the stack and total volume (result) accordingly.
+  typedef pair<int,int> pii;
+  stack<pii> s; // "first" is height, "second" is position.
   int res = 0;
   for (int i = 0; i < n; ++i) {
     int a = arr[i];
@@ -19,20 +20,23 @@ int findVolume(int arr[], int n) {
       s.push(pii(a, i));
     }
     else {
-      if (s.top().first == a || s.size() == 1) {
+      pii cur = s.top()
+      if (cur.first == a || s.size() == 1) {
         s.pop();
         s.push(pii(a, i));
       } else {
         int rmost = -1;
-        while (s.size() != 1 && a > s.top().first) {
-          pii p = s.top();
-          rmost = max(p.second, rmost);
-          s.pop();
-          int w =-s.top().second + rmost;
-          int h =  (min(a, s.top().first) - p.first);
-          res +=  w * h;
+        while (s.size() != 1 && a > cur.first) {
+          pii oldTop = s.top(); s.pop();
+          cur = s.top();
+          rmost = max(oldTop.second, rmost);
+          int w = rmost - cur.second;
+          int h = (min(a, cur.first) - oldTop.first);
+          res += w * h;
         }
-        if (s.size() == 1 && a > s.top().first) s.pop();
+        if (s.size() == 1 && a > cur.first) {
+          s.pop();
+        }
         s.push(pii(a, i));
       }
     }
